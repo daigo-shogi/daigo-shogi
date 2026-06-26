@@ -62,6 +62,7 @@
       display: flex;
       gap: 12px;
       align-items: center;
+      flex-wrap: wrap;
     }
     .notice-item input {
       flex: 1;
@@ -69,6 +70,22 @@
       border: 1px solid #dfd4c2;
       border-radius: 8px;
       font-size: 16px;
+    }
+    .date-picker {
+      width: 160px;
+      flex: 0 0 160px;
+      padding: 10px 12px;
+      border: 1px solid #dfd4c2;
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: inherit;
+    }
+    .date-display {
+      flex: 1;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #cc2200;
+      min-width: 0;
     }
     .btn {
       min-height: 48px;
@@ -118,6 +135,16 @@
       border-radius: 8px;
       font-size: 16px;
       margin-top: 8px;
+    }
+    @media (max-width: 480px) {
+      .date-picker {
+        width: 100%;
+        flex: 1 1 100%;
+      }
+      .date-display {
+        flex: 1 1 100%;
+        text-align: center;
+      }
     }
   </style>
 </head>
@@ -172,6 +199,7 @@
     const REPO_NAME = 'daigo-shogi';
     const FILE_PATH = 'data/schedule.json';
     const BRANCH = 'main';
+    const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
 
     let notices = [];
     let currentSha = null;
@@ -194,7 +222,13 @@
         const localRes = await fetch('data/schedule.json?' + Date.now());
         if (localRes.ok) {
           const data = await localRes.json();
-          notices = data.notices || [];
+          notices = (data.notices || []).map(function(n) {
+            return {
+              date: n.date || '',
+              note: n.note || 'お休みです',
+              iso: n.iso || ''
+            };
+          });
           document.getElementById('footer-note').value = data.footer_note || '';
           renderNotices();
           updatePreview();
@@ -217,20 +251,38 @@
       }
     }
 
+    function formatDateJP(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      const month = d.getMonth() + 1;
+      const day = d.getDate();
+      const weekday = WEEKDAYS[d.getDay()];
+      return month + '月' + day + '日（' + weekday + '）';
+    }
+
     function renderNotices() {
       const container = document.getElementById('notices-list');
       container.innerHTML = notices.map(function(n, i) {
+        const isoVal = n.iso || '';
         return '<div class="notice-item">' +
-          '<input type="text" value="' + (n.date || '') + '" onchange="updateNotice(' + i + ',this.value)" placeholder="例: 7月12日（日）">' +
+          '<input type="date" class="date-picker" value="' + isoVal + '" onchange="updateNoticeFromDate(' + i + ',this.value)">' +
+          '<span class="date-display">' + (n.date || '日付を選択') + '</span>' +
           '<button class="btn btn-danger" onclick="removeNotice(' + i + ')">削除</button>' +
           '</div>';
       }).join('');
     }
 
     function addNotice() {
-      notices.push({ date: '', note: 'お休みです' });
+      notices.push({ date: '', note: 'お休みです', iso: '' });
       renderNotices();
       updatePreview();
+      const pickers = document.querySelectorAll('.date-picker');
+      if (pickers.length > 0) {
+        const picker = pickers[pickers.length - 1];
+        picker.focus();
+        if (typeof picker.showPicker === 'function') {
+          picker.showPicker();
+        }
+      }
     }
 
     function removeNotice(i) {
@@ -239,8 +291,12 @@
       updatePreview();
     }
 
-    function updateNotice(i, val) {
-      notices[i].date = val;
+    function updateNoticeFromDate(index, isoDate) {
+      if (!isoDate) return;
+      const formatted = formatDateJP(isoDate);
+      notices[index].date = formatted;
+      notices[index].iso = isoDate;
+      renderNotices();
       updatePreview();
     }
 
@@ -269,7 +325,7 @@
 
       const scheduleData = {
         notices: notices.filter(function(n) { return n.date; }).map(function(n) {
-          return { date: n.date, note: n.note || 'お休みです' };
+          return { date: n.date, note: n.note || 'お休みです', iso: n.iso || '' };
         }),
         footer_note: document.getElementById('footer-note').value,
         last_updated: new Date().toISOString().slice(0, 10)
@@ -322,6 +378,12 @@
         setStatus('通信エラー: ' + e.message, 'error');
       }
     }
+
+    window.addNotice = addNotice;
+    window.removeNotice = removeNotice;
+    window.updateNoticeFromDate = updateNoticeFromDate;
+    window.saveSchedule = saveSchedule;
+    window.loadSchedule = loadSchedule;
 
     document.getElementById('footer-note').addEventListener('input', updatePreview);
   </script>
