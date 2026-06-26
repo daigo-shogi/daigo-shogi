@@ -174,12 +174,13 @@
             <figcaption><strong>交流を大切に</strong><span>将棋の合間の会話も、活動の大切な時間です。</span></figcaption>
           </figure>
           <figure class="photo-card notice-photo">
-            <div class="closed-days-board" data-closed-days-board>
+            <div class="closed-days-board" data-schedule-board data-schedule-src="data/schedule.json">
               <p class="closed-days-title">いきいきサロン将棋くらぶ<br>お休みのお知らせ</p>
-              <ul class="closed-days-list" data-closed-days-list>
+              <ul class="closed-days-list" data-schedule-list>
                 <li>読み込み中です</li>
               </ul>
-              <p class="closed-days-note" data-closed-days-note hidden></p>
+              <p class="closed-days-note" data-schedule-footer hidden></p>
+              <p class="closed-days-note" data-schedule-updated hidden></p>
             </div>
             <figcaption><strong>お知らせも見やすく</strong><span>開催日の変更などは、活動案内ページで随時お知らせします。</span></figcaption>
           </figure>
@@ -224,6 +225,6 @@
       </div>
     </div>
   </footer>
-  <script src="js/closed-days.js" defer></script>
+  <script src="js/schedule-notices.js" defer></script>
 </body>
 </html>
