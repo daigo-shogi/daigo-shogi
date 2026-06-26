@@ -178,7 +178,7 @@ a {
   min-height: 640px;
   display: grid;
   align-items: center;
-  background-image: linear-gradient(90deg, rgba(31, 24, 16, 0.68), rgba(31, 24, 16, 0.38)), url('../img/shogi_board2.png');
+  background-image: linear-gradient(90deg, rgba(31, 24, 16, 0.68), rgba(31, 24, 16, 0.38)), url('../img/shogi_board2-hero.jpg');
   background-position: center;
   background-size: cover;
   color: #fff;
