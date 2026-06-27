@@ -6,6 +6,24 @@
     return String(value == null ? '' : value);
   }
 
+  function escapeHtml(value) {
+    return escapeText(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function renderAnnouncement(data) {
+    const annBody = document.getElementById('announcement-body');
+    if (!annBody) return;
+
+    if (data.announcement && data.announcement.trim() !== '') {
+      annBody.innerHTML = escapeHtml(data.announcement).replace(/\n/g, '<br>');
+    } else {
+      annBody.textContent = '開催日の変更などは、活動案内ページで随時お知らせします。';
+    }
+  }
+
   function renderBoard(board, data) {
     const list = board.querySelector('[data-schedule-list]');
     const footer = board.querySelector('[data-schedule-footer]');
@@ -36,6 +54,8 @@
       updated.textContent = data.last_updated ? `※最終更新: ${data.last_updated}` : '';
       updated.hidden = !data.last_updated;
     }
+
+    renderAnnouncement(data);
   }
 
   function renderError(board) {

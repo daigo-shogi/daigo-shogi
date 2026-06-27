@@ -136,6 +136,33 @@
       font-size: 16px;
       margin-top: 8px;
     }
+    .announcement-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #dfd4c2;
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: inherit;
+      line-height: 1.7;
+      resize: vertical;
+    }
+    .help-text {
+      margin: 8px 0 0;
+      color: #666;
+      font-size: 0.82rem;
+    }
+    .preview-announcement-box {
+      margin-top: 12px;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid #dfd4c2;
+      border-radius: 8px;
+      text-align: left;
+    }
+    .preview-announcement-box p {
+      margin: 8px 0 0;
+      white-space: pre-line;
+    }
     @media (max-width: 480px) {
       .date-picker {
         width: 100%;
@@ -175,6 +202,13 @@
     <label style="display:block; margin-top:20px; font-weight:700; font-size:0.9rem;">補足メッセージ</label>
     <input type="text" class="footer-note-input" id="footer-note" value="その他の日・木曜日は予定通り行います">
 
+    <h2>個別のおしらせ（トップページ右側）</h2>
+    <div class="setup-section">
+      <label>本文（空欄の場合はデフォルト文言が表示されます）</label>
+      <textarea id="announcement-input" class="announcement-input" rows="4" placeholder="例：代表が鈴木に変わりました。&#10;引き続きよろしくお願いします。" oninput="updatePreview()"></textarea>
+      <p class="help-text">改行はEnterで入力できます。空欄にするとデフォルトの案内文に戻ります。</p>
+    </div>
+
     <div class="btn-row">
       <button class="btn btn-primary" onclick="saveSchedule()">保存してサイトに反映</button>
       <button class="btn btn-secondary" onclick="loadSchedule()">現在のデータを読み込み</button>
@@ -187,6 +221,10 @@
       <p><strong>いきいきサロン将棋くらぶ<br>お休みのお知らせ</strong></p>
       <ul id="preview-list"></ul>
       <p id="preview-footer" style="color:#666; font-size:0.9rem;"></p>
+      <div class="preview-announcement-box">
+        <strong>個別のおしらせ</strong>
+        <p id="preview-announcement"></p>
+      </div>
     </div>
 
     <p style="margin-top:40px; font-size:0.82rem; color:#999; text-align:center;">
@@ -230,6 +268,7 @@
             };
           });
           document.getElementById('footer-note').value = data.footer_note || '';
+          document.getElementById('announcement-input').value = data.announcement || '';
           renderNotices();
           updatePreview();
           setStatus('データを読み込みました。', 'success');
@@ -303,6 +342,8 @@
     function updatePreview() {
       const list = document.getElementById('preview-list');
       const footer = document.getElementById('preview-footer');
+      const annText = document.getElementById('announcement-input').value;
+      const annPreview = document.getElementById('preview-announcement');
       if (notices.length === 0) {
         list.innerHTML = '<li style="color:#2f5d41">現在、お休みの予定はありません。</li>';
       } else {
@@ -312,6 +353,7 @@
           .join('');
       }
       footer.textContent = document.getElementById('footer-note').value;
+      annPreview.textContent = annText || '開催日の変更などは、活動案内ページで随時お知らせします。';
     }
 
     async function saveSchedule() {
@@ -328,6 +370,7 @@
           return { date: n.date, note: n.note || 'お休みです', iso: n.iso || '' };
         }),
         footer_note: document.getElementById('footer-note').value,
+        announcement: document.getElementById('announcement-input').value,
         last_updated: new Date().toISOString().slice(0, 10)
       };
 
